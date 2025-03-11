@@ -1,5 +1,6 @@
 import { logger } from './logger';
 import { openManusSocket } from './websocket';
+import { ToolCollection } from './tools/collection';
 
 export enum AgentState {
   IDLE = 'idle',
@@ -34,6 +35,12 @@ export class Agent {
 
   registerTool(name: string, handler: Function) {
     this.tools.set(name, handler);
+  }
+
+  registerTools(toolCollection: ToolCollection): void {
+    toolCollection.getTools().forEach(tool => {
+      this.registerTool(tool.name, tool.execute.bind(tool));
+    });
   }
 
   private registerDefaultTools() {
@@ -96,7 +103,11 @@ export class Agent {
       const args = JSON.parse(call.function.arguments);
       logger.info(`🛠️ Executing tool: ${call.function.name}`);
       
-      const result = await tool(args);
+      // Support both function and tool execution
+      const result = typeof tool === 'function' ? 
+        await tool(args) : 
+        await tool.execute(args);
+
       logger.info(`🎯 Tool ${call.function.name} completed with result: ${result}`);
       
       if (result.includes('error') || result.includes('failed')) {

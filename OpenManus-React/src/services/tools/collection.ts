@@ -17,6 +17,10 @@ export class ToolCollection {
     return this.toolMap.get(name);
   }
 
+  getTools(): BaseTool[] {
+    return [...this.tools];
+  }
+
   async execute(name: string, args: any): Promise<ToolResult> {
     const tool = this.getTool(name);
     if (!tool) {
