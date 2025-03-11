@@ -40,6 +40,36 @@ export class PlanningService {
     return matches.map(match => match[1].trim());
   }
 
+  private getStepStatus(step: PlanStep): string {
+    switch (step.status) {
+      case PlanStepStatus.NOT_STARTED: return '[ ]';
+      case PlanStepStatus.IN_PROGRESS: return '[→]';
+      case PlanStepStatus.COMPLETED: return '[✓]';
+      case PlanStepStatus.BLOCKED: return '[!]';
+      default: return '[ ]';
+    }
+  }
+
+  async getCurrentPlanStatus(planId: string): Promise<string> {
+    const plan = this.plans.get(planId);
+    if (!plan) return 'No plan found';
+
+    const totalSteps = plan.steps.length;
+    const completedSteps = plan.steps.filter(s => s.status === PlanStepStatus.COMPLETED).length;
+    const progress = (completedSteps / totalSteps) * 100;
+
+    let status = `Plan: ${plan.title}\n`;
+    status += `Progress: ${completedSteps}/${totalSteps} (${progress.toFixed(1)}%)\n\n`;
+    status += 'Steps:\n';
+    
+    plan.steps.forEach((step, idx) => {
+      status += `${idx}. ${this.getStepStatus(step)} ${step.text}\n`;
+      if (step.notes) status += `   Notes: ${step.notes}\n`;
+    });
+
+    return status;
+  }
+
   async executeStep(planId: string): Promise<string> {
     const plan = this.plans.get(planId);
     if (!plan) throw new Error('Plan not found');

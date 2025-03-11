@@ -54,6 +54,14 @@ export class Agent {
     return true;
   }
 
+  private handleTermination(result: string): boolean {
+    if (result.includes('terminated') || this.currentStep >= this.maxSteps) {
+      this.state = AgentState.FINISHED;
+      return true;
+    }
+    return false;
+  }
+
   async act(toolCalls: ToolCall[]): Promise<string> {
     this.state = AgentState.ACTING;
     if (!toolCalls?.length) return '';
@@ -61,8 +69,13 @@ export class Agent {
     const results = await Promise.all(
       toolCalls.map(call => this.executeToolCall(call))
     );
-
-    return results.join('\n\n');
+    
+    const result = results.join('\n\n');
+    if (this.handleTermination(result)) {
+      return result;
+    }
+    
+    return result;
   }
 
   private async executeToolCall(call: ToolCall): Promise<string> {
