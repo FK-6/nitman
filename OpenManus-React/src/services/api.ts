@@ -27,6 +27,18 @@ const FUNCTION_DEFINITIONS = [
     }
   },
   {
+    name: 'browser_use',
+    description: 'Open and control web browsers',
+    parameters: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', description: 'URL to open or interact with' },
+        action: { type: 'string', description: 'Action to perform' }
+      },
+      required: ['url']
+    }
+  },
+  {
     name: 'file_saver',
     description: 'Save files locally',
     parameters: {

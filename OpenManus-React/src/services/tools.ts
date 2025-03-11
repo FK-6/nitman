@@ -1,5 +1,7 @@
 import { ToolCollection } from './tools/collection';
 import { PythonExecute } from './tools/python-execute';
+import { FileSaver } from './tools/file-saver';
+import { BrowserUseTool } from './tools/browser-use';
 
 interface PythonExecuteResponse {
   output: string;
@@ -21,10 +23,11 @@ interface ToolResponse {
   };
 }
 
-// Create tool collection
+// Create tool collection with all tools
 export const toolCollection = new ToolCollection(
   new PythonExecute(),
-  // Add other tools...
+  new FileSaver(),
+  new BrowserUseTool()
 );
 
 // Export execution functions
